@@ -1,0 +1,24 @@
+{
+  "image": "ghcr.io/mrsimonemms/devcontainers/full",
+  "name": "devcontainer",
+  "features": {
+    "ghcr.io/devcontainers-extra/features/temporal-cli:1": {},
+    "ghcr.io/va-h/devcontainers-features/uv:1": {
+      "shellautocompletion": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "tamasfe.even-better-toml"
+      ],
+      "settings": {}
+    }
+  },
+  "forwardPorts": [
+    8233,
+    9090,
+    9200,
+    16686
+  ]
+}
