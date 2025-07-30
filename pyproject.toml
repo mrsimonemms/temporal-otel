@@ -78,5 +78,5 @@ env = { PYTHONPATH = "." }
 help = "Start Docker Compose with specified profile."
 cmd = "docker compose --profile ${profile} up --build"
 args = [
-  { name = "profile", help = "Profiles to use (`default` or `dynatrace`).", default = "default"}
+  { name = "profile", help = "Profiles to use (`default`, `dynatrace` or `elk`).", default = "default"}
 ]

@@ -52,9 +52,18 @@ services:
       - temporal
       - otel-collector-dynatrace
 
+  worker-elk:
+    <<: *worker-base
+    profiles: ["elk"]
+    depends_on:
+      - temporal
+      - otel-collector-elk
+
   # Reference: https://www.jaegertracing.io/docs/2.8/getting-started/
   jaeger:
-    profiles: ["default"]
+    profiles:
+      - default
+      - elk
     container_name: jaeger
     image: cr.jaegertracing.io/jaegertracing/jaeger:2.8.0
     ports:
@@ -67,7 +76,9 @@ services:
 
   # Reference: https://prometheus.io/docs/prometheus/latest/installation/
   prometheus:
-    profiles: ["default"]
+    profiles:
+      - default
+      - elk
     container_name: prometheus
     image: prom/prometheus:v3.5.0
     command:
@@ -86,7 +97,9 @@ services:
 
   # Reference: https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
   elasticsearch:
-    profiles: ["default"]
+    profiles:
+      - default
+      - elk
     container_name: elasticsearch
     image: elasticsearch:9.0.4
     environment:
@@ -102,7 +115,7 @@ services:
     restart: unless-stopped
 
   # Reference: https://opentelemetry.io/docs/collector/
-  otel-collector:
+  otel-collector: &otel-collector
     <<: *otel-collector-base
     profiles: ["default"]
     volumes:
@@ -121,6 +134,30 @@ services:
     environment:
       - DYNATRACE_TENANT=${DYNATRACE_TENANT}
       - DYNATRACE_API_TOKEN=${DYNATRACE_API_TOKEN}
+
+  # Reference: https://opentelemetry.io/docs/collector/
+  otel-collector-elk:
+    <<: *otel-collector
+    profiles: ["elk"]
+    depends_on:
+      - jaeger
+      - prometheus
+      - elasticsearch
+      - kibana
+
+  kibana:
+    profiles: ["elk"]
+    container_name: kibana
+    image: kibana:9.0.4
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - temporal-network
 
 networks:
   temporal-network:
